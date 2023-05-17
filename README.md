@@ -97,8 +97,40 @@ ansible all -m gather_facts --limit 192.168.56.10
 _Commentary: Not sure what the difference is between `ansible 192.168.56.10 -m gather_facts` and
 `ansible all -m gather_facts --limit 192.168.56.10`._
 
+## Elevated Ad-Hoc Commands
+
+Commands that require root (elevated) privileges, such as installing packages. To do this, pass the `--become`
+flag to Ansible. If a password is required to become root, also pass the `--ask-become-pass` to have Ansible
+prompt for the root password.
+
+### Apt
+
+The Apt module for Ansible is used to interact with Apt on hosts. This module requires arguments, which
+are passed to Ansible with the `-a` flag and are given in `key=value` pairs. All the recognized arguments
+for this module are documented in [the Ansible documentation][apt-module-docs].
+
+To install a package (e.g. `vim-nox`):
+
+```bash
+ansible all -m apt -a name=vim-nox --become --ask-become-pass
+```
+
+To ensure a given package is up-to-date:
+
+```bash
+# Notice, since we are passing multiple key=value pairs to -a, they must be surrounded in quotes.
+ansible all -m apt -a 'name=vim-nox state=latest' --become --ask-become-pass
+```
+
+To upgrade every upgradeable package:
+
+```bash
+ansible all -m apt -a upgrade=dist --become --ask-become-pass
+```
+
 [ansible]: https://www.ansible.com
 [youtube]: https://youtu.be/3RiVKs8GHYQ
 [learn-linux-tv]: https://www.learnlinux.tv/
 [inventory-docs]: https://docs.ansible.com/ansible/latest/inventory_guide/index.html
 [config-docs]: https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+[apt-module-docs]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
