@@ -12,13 +12,23 @@
   - name: Update repo index # Task names should be decsriptive
     apt:
       update_cache: yes
+    when: ansible_distribution == "Ubuntu" # 'when' is like conditional compilation
+                                           # for Ansible: this task only runs when
+                                           # the condition is true. The syntax for
+                                           # 'when' expressions is the same as Jinja2
+                                           # expressions.
+                                           #
+                                           # Variables like 'ansible_distribution' come
+                                           # from the gather_facts module.
 
   - name: Install apache2 package
     apt:
       name: apache2
       state: latest
+    when: ansible_distribution == "Ubuntu"
 
   - name: Add PHP support for Apache
     apt:
       name: libapache2-mod-php
       state: latest
+    when: ansible_distribution == "Ubuntu"
