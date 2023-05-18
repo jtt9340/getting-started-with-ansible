@@ -42,10 +42,14 @@ Most package managers, including Homebrew, provide Ansible, which can be install
 I've provided a simple [`requirements.txt`](./requirements.txt) which can be used to install Ansible in a Python virtual environment
 (or globally if you like).
 
-## [`inventiory`](./inventory)
+## [`inventory`](./inventory)
 
 According to the Ansible documentation, ["An inventory is a list of managed nodes, or hosts, that Ansible deploys and configures."][inventory-docs],
 so this file lists the IP addresses of the three VMs for this repository.
+
+The hosts are divided into groups whose names are wrapped in [ ].
+A host can belong to multiple different groups, but for this example each host only belongs to a single group.
+Groups allow Ansible to target a subset of hosts in the inventory, rather than all of them or only one of them.
 
 Note that there is an `ansible-inventory` binary for interacting with the inventory.
 
@@ -70,6 +74,8 @@ ansible all -m ping
 ```
 
 Replace `all` with the IP address or host name of an individual server to run the Ping module on only that server.
+Alternatively, `all` can be replaced with a group name (specified in the inventory) and the module will be run on
+only the hosts for that particular group.
 
 ### `--list-hosts`
 
@@ -133,21 +139,17 @@ ansible all -m apt -a upgrade=dist --become --ask-become-pass
 Playbooks allow you to "script" usage of Ansible. They are YAML files that are "executed" by the
 `ansible-playbook` binary.
 
-The examples [`install_apache.yml`](./install_apache.yml) and [`remove_apache.yml`](./remove_apache.yml)
-show how to write two playbooks. `install_apache.yml` is commented with some important things to note when
+The examples [`site.yml`](./site.yml) and [`remove_apache.yml`](./remove_apache.yml)
+show how to write two playbooks. `site.yml` is commented with some important things to note when
 writing playbooks.
 
-To install Apache on all hosts, run
+To run the `site.yml` playbook, do
 
 ```bash
-ansible-playbook install_apache.yml --ask-become-pass
+ansible-playbook site.yml --ask-become-pass
 ```
 
-Apache can similarly be uninstalled with
-
-```bash
-ansible-playbook remove_apache.yml --ask-become-pass
-```
+Replace `site.yml` with `remove_apache.yml` in the above command to run the `remove_apache.yml` playbook.
 
 The [Ansible documentation][playbook-docs] mentions two more binaries: `ansible-pull` and `ansible-lint`.
 It seems `ansible-pull` was installed by default upon running `pip install ansible` but `ansible-lint` needed
