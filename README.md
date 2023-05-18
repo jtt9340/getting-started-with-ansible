@@ -128,9 +128,41 @@ To upgrade every upgradeable package:
 ansible all -m apt -a upgrade=dist --become --ask-become-pass
 ```
 
+## Playbooks
+
+Playbooks allow you to "script" usage of Ansible. They are YAML files that are "executed" by the
+`ansible-playbook` binary.
+
+The examples [`install_apache.yml`](./install_apache.yml) and [`remove_apache.yml`](./remove_apache.yml)
+show how to write two playbooks. `install_apache.yml` is commented with some important things to note when
+writing playbooks.
+
+To install Apache on all hosts, run
+
+```bash
+ansible-playbook install_apache.yml --ask-become-pass
+```
+
+Apache can similarly be uninstalled with
+
+```bash
+ansible-playbook remove_apache.yml --ask-become-pass
+```
+
+The [Ansible documentation][playbook-docs] mentions two more binaries: `ansible-pull` and `ansible-lint`.
+It seems `ansible-pull` was installed by default upon running `pip install ansible` but `ansible-lint` needed
+to be installed separately with `pip install ansible-lint` (see [`requirements.txt`](./requirements.txt)).
+
+Normally, with Ansible, the **control host** _pushes_ configuration to one or more hosts, but `ansible-pull`
+inverts this control to have a host instead git clone (or _pull_) a playbook and then run it with `ansible-pull`. I've
+seen this technique used in people's dotfiles repositories to automate the setup of a new computer.
+
+`ansible-lint` is a linter for Ansible playbooks.
+
 [ansible]: https://www.ansible.com
 [youtube]: https://youtu.be/3RiVKs8GHYQ
 [learn-linux-tv]: https://www.learnlinux.tv/
 [inventory-docs]: https://docs.ansible.com/ansible/latest/inventory_guide/index.html
 [config-docs]: https://docs.ansible.com/ansible/latest/reference_appendices/config.html
 [apt-module-docs]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
+[playbook-docs]: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_intro.html

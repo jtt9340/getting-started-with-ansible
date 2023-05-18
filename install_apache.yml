@@ -1,0 +1,24 @@
+--- # Ansible playbooks start with ---
+
+# Each one of these outermost blocks is a "play". This file contains a single,
+# anonymous play with three tasks.
+
+- hosts: all   # Similar to 'ansible all ...' for the ad-hoc commands
+  become: true # Same as --become for the ad-hoc commands
+  tasks:
+
+  # Tasks are executed in order from top to bottom
+
+  - name: Update repo index # Task names should be decsriptive
+    apt:
+      update_cache: yes
+
+  - name: Install apache2 package
+    apt:
+      name: apache2
+      state: latest
+
+  - name: Add PHP support for Apache
+    apt:
+      name: libapache2-mod-php
+      state: latest
