@@ -9,9 +9,21 @@
 
   # Tasks are executed in order from top to bottom
 
-  - name: Update repo index # Task names should be decsriptive
+  - name: Install Apache and PHP
     apt:
       update_cache: yes
+      name:
+
+        # We can parameterize playbooks with variables. In this case, we want to
+        # parameterize, rather than hard code, the names of the packages to install
+        # for Apache and PHP. This is useful if this playbook is being run on
+        # multiple hosts running different distros where the package names for
+        # Apache and PHP may differ slightly. We specify the values of these
+        # variables in the inventory, but that is just one of many ways of setting variables.
+
+        - "{{ apache }}"
+        - "{{ php }}"
+      state: latest
     when: ansible_distribution == "Ubuntu" # 'when' is like conditional compilation
                                            # for Ansible: this task only runs when
                                            # the condition is true. The syntax for
@@ -20,15 +32,3 @@
                                            #
                                            # Variables like 'ansible_distribution' come
                                            # from the gather_facts module.
-
-  - name: Install apache2 package
-    apt:
-      name: apache2
-      state: latest
-    when: ansible_distribution == "Ubuntu"
-
-  - name: Add PHP support for Apache
-    apt:
-      name: libapache2-mod-php
-      state: latest
-    when: ansible_distribution == "Ubuntu"

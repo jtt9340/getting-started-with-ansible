@@ -42,7 +42,7 @@ Most package managers, including Homebrew, provide Ansible, which can be install
 I've provided a simple [`requirements.txt`](./requirements.txt) which can be used to install Ansible in a Python virtual environment
 (or globally if you like).
 
-## [`inventiory.ini`](./inventory.ini)
+## [`inventiory`](./inventory)
 
 According to the Ansible documentation, ["An inventory is a list of managed nodes, or hosts, that Ansible deploys and configures."][inventory-docs],
 so this file lists the IP addresses of the three VMs for this repository.
