@@ -9,7 +9,7 @@
   # Tasks are executed in order from top to bottom
   - name: Install updates
     tags: always # Built-in tag name that means this task should always run unless specified otherwise
-    apt:
+    apt: # The 'apt' module uses apt to install packages. Obviously only works on Debian-based distros
       upgrade: dist
       update_cache: yes
     when: ansible_distribution == "Ubuntu" # 'when' is like conditional compilation
@@ -20,6 +20,22 @@
                                            #
                                            # Variables like 'ansible_distribution' come
                                            # from the gather_facts module.
+
+- hosts: workstations
+  become: true
+  tasks:
+    - name: Install unzip
+      package: # The 'package' module is a distro-agnostic module for installing packages
+        name: unzip
+
+    - name: Install Terraform
+      unarchive: # The 'unarchive' module unzips a Zip archive given a file path or URL
+        src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+        dest: /usr/local/bin
+        remote_src: yes # Tells Ansible that src is a URL, not a file path
+        mode: 0755
+        owner: root
+        group: root
 
 - hosts: webservers # Only runs on hosts part of the "webservers" group (see inventory)
   become: true
@@ -45,6 +61,14 @@
         - "{{ php }}"
       state: absent
     when: ansible_distribution == "Ubuntu"
+  - name: Copy default HTML file for site
+    tags: apache,apache2
+    copy: # The 'copy' module copies files ... duh!
+      src: default_site.html # Looks under files/ directory by default
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
 
 - hosts: db
   become: true
@@ -60,6 +84,6 @@
   tasks:
   - name: Install Samba
     tags: samba
-    package: # The 'package' module is a distro-agnostic module for installing packages
+    package:
       name: samba
       state: latest
