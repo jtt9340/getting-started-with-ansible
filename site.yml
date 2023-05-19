@@ -8,6 +8,7 @@
   pre_tasks:   # 'pre_tasks' instead of 'tasks' mandates that these tasks run before any other do
   # Tasks are executed in order from top to bottom
   - name: Install updates
+    tags: always # Built-in tag name that means this task should always run unless specified otherwise
     apt:
       upgrade: dist
       update_cache: yes
@@ -24,6 +25,7 @@
   become: true
   tasks:
   - name: Install Apache and PHP
+    tags: apache,apache2,ubuntu
     apt:
       name:
         # We can parameterize playbooks with variables. In this case, we want to
@@ -35,11 +37,20 @@
         - "{{ apache }}"
         - "{{ php }}"
       state: latest
+  - name: Remove Apache and PHP
+    tags: never # Built-in tag name that means this task should never run unless specified otherwise
+    apt:
+      name:
+        - "{{ apache }}"
+        - "{{ php }}"
+      state: absent
+    when: ansible_distribution == "Ubuntu"
 
 - hosts: db
   become: true
   tasks:
   - name: Install MariaDB
+    tags: db,mariadb,ubuntu
     apt:
       name: mariadb-server
       state: latest
@@ -48,6 +59,7 @@
   become: true
   tasks:
   - name: Install Samba
+    tags: samba
     package: # The 'package' module is a distro-agnostic module for installing packages
       name: samba
       state: latest

@@ -139,9 +139,8 @@ ansible all -m apt -a upgrade=dist --become --ask-become-pass
 Playbooks allow you to "script" usage of Ansible. They are YAML files that are "executed" by the
 `ansible-playbook` binary.
 
-The examples [`site.yml`](./site.yml) and [`remove_apache.yml`](./remove_apache.yml)
-show how to write two playbooks. `site.yml` is commented with some important things to note when
-writing playbooks.
+The example [`site.yml`](./site.yml) shows how to write a playbook. It is commented with some
+important things to note when writing playbooks.
 
 To run the `site.yml` playbook, do
 
@@ -149,7 +148,34 @@ To run the `site.yml` playbook, do
 ansible-playbook site.yml --ask-become-pass
 ```
 
-Replace `site.yml` with `remove_apache.yml` in the above command to run the `remove_apache.yml` playbook.
+If there were multiple different playbooks, you could substitute `site.yml` in the above command
+with the name of another playbook to run that instead.
+
+### Tags
+
+You'll notice `tags` entries in `site.yml`. These can be used to selectively run certain tasks in
+a playbook. By default, Ansible runs all tasks (that match the appropriate host and conditions and
+all that), but if you pass a comma-separated list to `--tags` then only the specified tags are run,
+plus any tasks tagged `always` (regardless of whether or not you specified `always`).
+
+For example, running
+
+```bash
+ansible-playbook --tags ubuntu,samba site.yml
+```
+
+will run all tasks in `site.yml` with the `always`, `ubuntu`, and/or `samba` tags.
+
+To see which tags are defined in a playbook, run
+
+```bash
+ansible-playbook --list-tags site.yml
+```
+
+See the [Ansible documentation][tags-docs] for more information on where tags can appear in playbooks
+as well as additional ways for specifying tags at the command line.
+
+### `ansible-pull` and `ansible-lint`
 
 The [Ansible documentation][playbook-docs] mentions two more binaries: `ansible-pull` and `ansible-lint`.
 It seems `ansible-pull` was installed by default upon running `pip install ansible` but `ansible-lint` needed
@@ -168,3 +194,4 @@ seen this technique used in people's dotfiles repositories to automate the setup
 [config-docs]: https://docs.ansible.com/ansible/latest/reference_appendices/config.html
 [apt-module-docs]: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
 [playbook-docs]: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_intro.html
+[tags-docs]: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_tags.html
