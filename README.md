@@ -139,8 +139,9 @@ ansible all -m apt -a upgrade=dist --become --ask-become-pass
 Playbooks allow you to "script" usage of Ansible. They are YAML files that are "executed" by the
 `ansible-playbook` binary.
 
-The example [`site.yml`](./site.yml) shows how to write a playbook. It is commented with some
-important things to note when writing playbooks.
+The examples [`site.yml`](./site.yml) and [`bootstrap.yml`](./bootstrap.yml)
+show how to write two playbooks. `site.yml` is commented with some important things to note when
+writing playbooks.
 
 To run the `site.yml` playbook, do
 
@@ -148,8 +149,10 @@ To run the `site.yml` playbook, do
 ansible-playbook site.yml --ask-become-pass
 ```
 
-If there were multiple different playbooks, you could substitute `site.yml` in the above command
-with the name of another playbook to run that instead.
+Replace `site.yml` with `bootstrap.yml` in the command above to run the `bootstrap.yml` playbook
+instead. `bootstrap.yml` is intended to "bootstrap" a host that has never been provisioned by
+Ansible before by configuring a user and copying its SSH keys so that the `--ask-become-pass` flag
+doesn't need to be passed to future Ansible commands.
 
 ### Tags
 

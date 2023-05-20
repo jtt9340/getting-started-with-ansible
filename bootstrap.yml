@@ -1,0 +1,35 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+  - name: Install updates
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  tasks:
+  - name: Create joeyt user
+    tags: always
+    user:
+      name: joeyt
+      groups: root
+
+  - name: Add ssh key for joeyt
+    tags: always
+    authorized_key:
+      user: joeyt
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  - name: Add sudoers file for joeyt
+    tags: always
+    copy:
+      src: sudoer_joeyt
+      dest: /etc/sudoers.d/joeyt
+      owner: root
+      group: root
+      mode: 0440

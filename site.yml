@@ -1,17 +1,17 @@
 --- # Ansible playbooks start with ---
 
 # Each one of these outermost blocks is a "play".
-# This file contains three (anonymous) plays.
+# This file contains six (anonymous) plays.
 
 - hosts: all   # Similar to 'ansible all ...' for the ad-hoc commands
   become: true # Same as --become for the ad-hoc commands
   pre_tasks:   # 'pre_tasks' instead of 'tasks' mandates that these tasks run before any other do
   # Tasks are executed in order from top to bottom
-  - name: Install updates
+  - name: Update repository cache
     tags: always # Built-in tag name that means this task should always run unless specified otherwise
     apt: # The 'apt' module uses apt to install packages. Obviously only works on Debian-based distros
-      upgrade: dist
       update_cache: yes
+    changed_when: false # This task will never count as a change
     when: ansible_distribution == "Ubuntu" # 'when' is like conditional compilation
                                            # for Ansible: this task only runs when
                                            # the condition is true. The syntax for
@@ -20,6 +20,17 @@
                                            #
                                            # Variables like 'ansible_distribution' come
                                            # from the gather_facts module.
+
+- hosts: all
+  become: true
+  tasks:
+  - name: Add ssh key for joeyt
+    tags: always
+    authorized_key: # The 'authorized_key' module adds SSH keys to hosts
+      user: joeyt
+      # The 'key' argument wants the public key verbatim, but we take advantage of Jinja
+      # templating to specify a file instead
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 - hosts: workstations
   become: true
@@ -38,6 +49,7 @@
         group: root
 
     - name: Install Docuum
+      tags: docuum
       get_url: # The 'get_url' module downloads files
         url: https://github.com/stepchowfun/docuum/releases/download/v0.22.1/docuum-x86_64-unknown-linux-gnu
         dest: /usr/local/bin/docuum
@@ -46,7 +58,8 @@
         group: root
 
     - name: Copy Docuum systemd service file
-      copy: # The 'copy' module copies files ... duh!
+      tags: docuum
+      copy:
         src: docuum.service
         dest: /etc/systemd/system/docuum.service
         owner: root
@@ -54,6 +67,7 @@
         mode: 0644
 
     - name: Start docuum service
+      tags: docuum
       systemd: # The 'systemd' module allows you to manage SystemD services
         name: docuum
         enabled: true
