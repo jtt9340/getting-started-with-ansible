@@ -1,0 +1,7 @@
+---
+
+- name: Install MariaDB
+  tags: db,mariadb,ubuntu
+  apt:
+    name: mariadb-server
+    state: latest

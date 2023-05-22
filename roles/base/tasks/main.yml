@@ -1,0 +1,7 @@
+---
+
+- name: Add ssh key for joeyt
+  tags: always
+  authorized_key:
+    user: joeyt
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"

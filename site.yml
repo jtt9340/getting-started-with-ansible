@@ -1,146 +1,35 @@
 --- # Ansible playbooks start with ---
 
-# Each one of these outermost blocks is a "play".
-# This file contains six (anonymous) plays.
-
-- hosts: all   # Similar to 'ansible all ...' for the ad-hoc commands
-  become: true # Same as --become for the ad-hoc commands
-  pre_tasks:   # 'pre_tasks' instead of 'tasks' mandates that these tasks run before any other do
-  # Tasks are executed in order from top to bottom
+- hosts: all
+  become: true
+  pre_tasks:
   - name: Update repository cache
-    tags: always # Built-in tag name that means this task should always run unless specified otherwise
-    apt: # The 'apt' module uses apt to install packages. Obviously only works on Debian-based distros
+    tags: always
+    apt:
       update_cache: yes
-    changed_when: false # This task will never count as a change
-    when: ansible_distribution == "Ubuntu" # 'when' is like conditional compilation
-                                           # for Ansible: this task only runs when
-                                           # the condition is true. The syntax for
-                                           # 'when' expressions is the same as Jinja2
-                                           # expressions.
-                                           #
-                                           # Variables like 'ansible_distribution' come
-                                           # from the gather_facts module.
+    changed_when: false
 
 - hosts: all
   become: true
-  tasks:
-  - name: Add ssh key for joeyt
-    tags: always
-    authorized_key: # The 'authorized_key' module adds SSH keys to hosts
-      user: joeyt
-      # The 'key' argument wants the public key verbatim, but we take advantage of Jinja
-      # templating to specify a file instead
-      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  roles:
+  - base # Looks for a taskbook in 'roles/{role name}/tasks/main.yml'
 
 - hosts: workstations
   become: true
-  tasks:
-    - name: Install unzip
-      package: # The 'package' module is a distro-agnostic module for installing packages
-        name: unzip
+  roles:
+  - workstations
 
-    - name: Install Terraform
-      unarchive: # The 'unarchive' module unzips a Zip archive given a file path or URL
-        src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
-        dest: /usr/local/bin
-        remote_src: yes # Tells Ansible that src is a URL, not a file path
-        mode: 0755
-        owner: root
-        group: root
-
-    - name: Install Docuum
-      tags: docuum
-      get_url: # The 'get_url' module downloads files
-        url: https://github.com/stepchowfun/docuum/releases/download/v0.22.1/docuum-x86_64-unknown-linux-gnu
-        dest: /usr/local/bin/docuum
-        mode: 0755
-        owner: root
-        group: root
-
-    - name: Copy Docuum systemd service file
-      tags: docuum
-      copy:
-        src: docuum.service
-        dest: /etc/systemd/system/docuum.service
-        owner: root
-        group: root
-        mode: 0644
-
-    - name: Start docuum service
-      tags: docuum
-      systemd: # The 'systemd' module allows you to manage SystemD services
-        name: docuum
-        enabled: true
-        state: started
-
-- hosts: webservers # Only runs on hosts part of the "webservers" group (see inventory)
+- hosts: webservers
   become: true
-  tasks:
-  - name: Install Apache and PHP
-    tags: apache,apache2,ubuntu
-    apt:
-      name:
-        # We can parameterize playbooks with variables. In this case, we want to
-        # parameterize, rather than hard code, the names of the packages to install
-        # for Apache and PHP. This is useful if this playbook is being run on
-        # multiple hosts running different distros where the package names for
-        # Apache and PHP may differ slightly. We specify the values of these
-        # variables in the inventory, but that is just one of many ways of setting variables.
-        - "{{ apache }}"
-        - "{{ php }}"
-      state: latest
-
-  - name: Remove Apache and PHP
-    tags: never # Built-in tag name that means this task should never run unless specified otherwise
-    apt:
-      name:
-        - "{{ apache }}"
-        - "{{ php }}"
-      state: absent
-    when: ansible_distribution == "Ubuntu"
-
-  - name: Change email address for admin
-    tags: apache
-    lineinfile: # The 'lineinfile' module allows you to change a line in a file
-      path: /etc/apache2/sites-enabled/000-default.conf
-      regexp: '^\tServerAdmin'
-      line: "\tServerAdmin somebody@somewhere.net"
-    register: apache_service # Store the state of this task in the apache_service variable
-                             # Note that if I re-use this variable name in a later task it
-                             # will get overwritten, which means that conditions like var.changed
-                             # may not behave as expected if a later task does not change anything
-                             # but an earlier task does.
-
-  - name: Restart Apache
-    tags: apache,apache2
-    service: # The 'service' module allows you to manage services in an init system-agnostic manner
-      name: apache2
-      state: restarted 
-    when: apache_service.changed # Only run if the apache_service variable changed
-
-  - name: Copy default HTML file for site
-    tags: apache,apache2
-    copy:
-      src: default_site.html # Looks under files/ directory by default
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
+  roles:
+  - webservers
 
 - hosts: db
   become: true
-  tasks:
-  - name: Install MariaDB
-    tags: db,mariadb,ubuntu
-    apt:
-      name: mariadb-server
-      state: latest
+  roles:
+  - db
 
 - hosts: files
   become: true
-  tasks:
-  - name: Install Samba
-    tags: samba
-    package:
-      name: samba
-      state: latest
+  roles:
+  - files

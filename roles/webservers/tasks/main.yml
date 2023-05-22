@@ -1,0 +1,41 @@
+---
+
+- name: Install Apache and PHP
+  tags: apache,apache2,ubuntu
+  apt:
+    name:
+      - "{{ apache }}"
+      - "{{ php }}"
+    state: latest
+
+- name: Remove Apache and PHP
+  tags: never
+  apt:
+    name:
+      - "{{ apache }}"
+      - "{{ php }}"
+    state: absent
+
+- name: Change email address for admin
+  tags: apache
+  lineinfile:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    regexp: '^\tServerAdmin'
+    line: "\tServerAdmin somebody@somewhere.net"
+  register: apache_service
+
+- name: Restart Apache
+  tags: apache,apache2
+  service:
+    name: apache2
+    state: restarted 
+  when: apache_service.changed
+
+- name: Copy default HTML file for site
+  tags: apache,apache2
+  copy:
+    src: default_site.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: 0644
