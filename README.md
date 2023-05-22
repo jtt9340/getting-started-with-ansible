@@ -197,7 +197,7 @@ seen this technique used in people's dotfiles repositories to automate the setup
 ## Roles
 
 The concept of **roles** enables separation of concerns within **playbooks**, so that all the **plays** and **tasks** within a **playbook**
-(or **taskbook** as they will come to be referred as when talking about **roles**) are related to a single goal.
+(or **taskbook** as they will come to be referred as when talking about **roles**) are related to a single purpose.
 
 [`site.yml`](./site.yml) is [`site_before_roles.yml`](./site_before_roles.yml) rewritten to use **roles**. Now each **play** has
 a `roles` entry with a list of **role** names. Ansible expects the directory structure to be the following:
@@ -235,6 +235,12 @@ sources of the file(s) to be copied in such a directory. There are also other di
 in the [Ansible documentation][roles-docs].
 
 `site.yml` is executed just as it was before: `ansible-playbook site.yml`.
+
+## Jinja2 Templating
+
+Ansible allows files to be templated using the Jinja2 templating library. Templates are specified in a `templates` directory
+for roles and use a `.j2` file extension. They are deployed using the "template" module. Example usage of all of this can be
+seen in the "base" role in this repository.
 
 [ansible]: https://www.ansible.com
 [youtube]: https://youtu.be/3RiVKs8GHYQ

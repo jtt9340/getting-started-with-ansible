@@ -5,3 +5,13 @@
   authorized_key:
     user: joeyt
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Generate sshd_config file from template
+  tags: ssh
+  template:
+    src: sshd_config_ubuntu.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart_sshd
