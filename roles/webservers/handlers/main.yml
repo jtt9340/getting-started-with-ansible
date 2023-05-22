@@ -1,0 +1,4 @@
+- name: restart_apache # Name must match 'register' entry
+  service:
+    name: apache2
+    state: restarted

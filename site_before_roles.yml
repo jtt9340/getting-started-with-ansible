@@ -78,7 +78,7 @@
   tasks:
   - name: Install Apache and PHP
     tags: apache,apache2,ubuntu
-    apt:
+    package:
       name:
         # We can parameterize playbooks with variables. In this case, we want to
         # parameterize, rather than hard code, the names of the packages to install
@@ -105,11 +105,13 @@
       path: /etc/apache2/sites-enabled/000-default.conf
       regexp: '^\tServerAdmin'
       line: "\tServerAdmin somebody@somewhere.net"
-    register: apache_service # Store the state of this task in the apache_service variable
+    register: apache_service # Store the state of this task in the apache_service variable.
                              # Note that if I re-use this variable name in a later task it
                              # will get overwritten, which means that conditions like var.changed
                              # may not behave as expected if a later task does not change anything
-                             # but an earlier task does.
+                             # but an earlier task does. Because of this, a better approach is using
+                             # handlers. See roles/webservers/tasks/main.yml and roles/webservers/handlers/main.yml
+                             # for how handlers work.
 
   - name: Restart Apache
     tags: apache,apache2

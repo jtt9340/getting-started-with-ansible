@@ -2,7 +2,7 @@
 
 - name: Install Apache and PHP
   tags: apache,apache2,ubuntu
-  apt:
+  package:
     name:
       - "{{ apache }}"
       - "{{ php }}"
@@ -22,14 +22,7 @@
     path: /etc/apache2/sites-enabled/000-default.conf
     regexp: '^\tServerAdmin'
     line: "\tServerAdmin somebody@somewhere.net"
-  register: apache_service
-
-- name: Restart Apache
-  tags: apache,apache2
-  service:
-    name: apache2
-    state: restarted 
-  when: apache_service.changed
+  notify: restart_apache # restart_apache handler for if this is changed
 
 - name: Copy default HTML file for site
   tags: apache,apache2
